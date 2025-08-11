@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>IPL 2025 - Auto Graphs</title>
+
+<!-- XLSX library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+  :root{
+    --glass: rgba(255,255,255,0.08);
+    --accent: #f39c12;
+    --muted: #dfeef0;
+    --card-radius: 12px;
+  }
+  html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:
+    linear-gradient(180deg,#1a1a1a 0%, #0b0b0b 40%);
+    color:#f7f7f7;
+  }
+
+  header{
+    position:sticky; top:0; z-index:30;
+    background: linear-gradient(90deg, rgba(0,0,0,0.7), rgba(0,0,0,0.9));
+    padding:14px 18px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .brand{
+    display:flex; align-items:center; gap:12px;
+  }
+  .logo {
+    width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#d35400);
+    display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;
+    box-shadow:0 6px 18px rgba(243,156,18,0.3);
+  }
+  h1{font-size:18px;margin:0;letter-spacing:0.2px}
+  .top-actions { margin-left:auto; display:flex; gap:10px; align-items:center; }
+
+  main { padding:18px; display:grid; grid-template-columns: 300px 1fr; gap:18px; min-height:calc(100vh - 120px); }
+
+  .sidebar {
+    background: var(--glass);
+    padding:14px;
+    border-radius: var(--card-radius);
+    backdrop-filter: blur(6px);
+    box-shadow: inset 0 1px rgba(255,255,255,0.02), 0 8px 30px rgba(0,0,0,0.7);
+  }
+  .sidebar h3{margin:0 0 8px 0;font-size:14px;color:var(--muted)}
+  .sidebar .control{margin-bottom:12px}
+  label { font-size:13px;color:#e7d8b1; display:block; margin-bottom:6px; }
+  input[type="file"] { color:transparent; }
+  .btn { background:var(--accent); color:#3a1a00; padding:8px 12px; border-radius:8px; border:none; cursor:pointer; font-weight:600; }
+  .btn.ghost { background: transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.06); }
+
+  select, input[type="date"] {
+    width:100%; padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);
+    background: rgba(10,10,10,0.3); color:var(--muted); font-size:13px;
+  }
+
+  .content {
+    display:flex; flex-direction:column; gap:18px;
+  }
+  .card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+    border-radius: var(--card-radius);
+    padding:14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+    border: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .charts-grid {
+    display:grid; grid-template-columns: repeat(2, 1fr); gap:14px;
+  }
+  canvas { background: transparent; border-radius:8px; }
+
+  .full { grid-column: 1 / -1; }
+
+  footer{
+    background: linear-gradient(90deg, rgba(0,0,0,0.8), rgba(0,0,0,0.95));
+    color:#e7d8b1; font-size:14px; text-align:center; padding:12px 16px; position:sticky; bottom:0;
+  }
+
+  @media (max-width: 980px){
+    main { grid-template-columns: 1fr; }
+    .charts-grid { grid-template-columns: 1fr; }
+    .top-actions { display:none; }
+  }
+
+  .muted { color:#d4c69c; font-size:13px; margin-top:6px; }
+  .small { font-size:12px; color:#b1a57e; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">IPL</div>
+    <div>
+      <h1>IPL 2025 — Automatic Graphs</h1>
+      <div class="small">Upload Excel → Visualize match and team stats</div>
+    </div>
+  </div>
+
+  <div class="top-actions">
+    <button class="btn" id="demoBtn">Load Demo Data</button>
+    <label class="btn ghost" for="fileInput">Choose Excel file</label>
+    <input id="fileInput" type="file" accept=".xlsx,.xls" style="display:none" />
+  </div>
+</header>
+
+<main>
+  <aside class="sidebar">
+    <h3>Filters</h3>
+
+    <div class="control">
+      <label>Select Team</label>
+      <select id="teamSelect"><option>Loading...</option></select>
+    </div>
+
+    <div class="control">
+      <label>Date range (optional)</label>
+      <input type="date" id="startDate" />
+      <div style="height:8px"></div>
+      <input type="date" id="endDate" />
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn" id="applyBtn">Apply</button>
+      <button class="btn ghost" id="resetBtn">Reset</button>
+    </div>
+
+    <div style="margin-top:14px">
+      <div class="muted">Tips:</div>
+      <ul class="small">
+        <li>Excel columns needed: Date, Team1, Team2, Venue, Winner, Margin, Player_of_the_Match, Runs_Team1, Runs_Team2</li>
+        <li>Date format should be parseable by JavaScript Date</li>
+      </ul>
+    </div>
+  </aside>
+
+  <section class="content">
+    <div class="card">
+      <strong>Dataset summary:</strong> <span id="summaryText" class="small">No dataset loaded</span>
+    </div>
+
+    <div class="card charts-grid">
+      <div>
+        <canvas id="winsBar"></canvas>
+      </div>
+
+      <div>
+        <canvas id="runsLine"></canvas>
+      </div>
+
+      <div class="full">
+        <canvas id="playerOfMatchBar"></canvas>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Designed by B.Com students from SSR Degree College under guidance of K. Jagan Sir.
+</footer>
+
+<script>
+let rawRows = [];
+let charts = [];
+
+const teamSelect = document.getElementById('teamSelect');
+const summaryText = document.getElementById('summaryText');
+
+function clearCharts() {
+  charts.forEach(c => c.destroy());
+  charts = [];
+}
+
+function formatDateISO(d) {
+  if(!d) return '';
+  const Y = d.getFullYear();
+  const M = String(d.getMonth()+1).padStart(2,'0');
+  const D = String(d.getDate()).padStart(2,'0');
+  return `${Y}-${M}-${D}`;
+}
+
+function parseDateFlexible(v) {
+  if (v === null || v === undefined) return null;
+  if (v instanceof Date) return v;
+  if (typeof v === 'number') {
+    // Excel date number
+    const utc_days = Math.floor(v - 25569);
+    const utc_value = utc_days * 86400;
+    return new Date(utc_value * 1000);
+  }
+  let d = new Date(v);
+  if (!isNaN(d)) return d;
+  d = new Date(String(v).replace(/-/g,'/'));
+  if (!isNaN(d)) return d;
+  return null;
+}
+
+function findKey(row, candidates) {
+  const keys = Object.keys(row);
+  for (const c of candidates) {
+    for (const k of keys) {
+      if (k.toLowerCase().trim() === c.toLowerCase().trim()) return k;
+    }
+  }
+  return null;
+}
+
+document.getElementById('fileInput').addEventListener('change', async evt => {
+  const f = evt.target.files[0];
+  if (!f) return;
+  const buf = await f.arrayBuffer();
+  const wb = XLSX.read(buf, {type:'array', cellDates:true});
+  const sheetName = wb.SheetNames[0];
+  const sheet = wb.Sheets[sheetName];
+  const data = XLSX.utils.sheet_to_json(sheet, {defval:null});
+  loadDataset(data);
+});
+
+document.getElementById('demoBtn').addEventListener('click', () => {
+  const teams = ['CSK', 'MI', 'RCB', 'KKR', 'SRH', 'RR', 'PBKS', 'LSG', 'GT', 'DC'];
+  const demo = [];
+  const startDate = new Date('2025-03-23');
+  for(let i=0; i<20; i++) {
+    const d = new Date(startDate);
+    d.setDate(startDate.getDate() + i);
+    const team1 = teams[i % teams.length];
+    const team2 = teams[(i + 3) % teams.length];
+    const winner = Math.random() > 0.5 ? team1 : team2;
+    const marginRuns = Math.floor(Math.random() * 30) + 1;
+    const marginWickets = Math.floor(Math.random() * 7) + 1;
+    const margin = Math.random() > 0.5 ? marginRuns + " runs" : marginWickets + " wickets";
+    const playerOfMatch = teams[Math.floor(Math.random() * teams.length)] + " Star";
+    const runsTeam1 = 120 + Math.floor(Math.random() * 100);
+    const runsTeam2 = 110 + Math.floor(Math.random() * 110);
+    demo.push({
+      Date: formatDateISO(d),
+      Team1: team1,
+      Team2: team2,
+      Venue: "Venue " + ((i % 5) + 1),
+      Winner: winner,
+      Margin: margin,
+      Player_of_the_Match: playerOfMatch,
+      Runs_Team1: runsTeam1,
+      Runs_Team2: runsTeam2
+    });
+  }
+  loadDataset(demo);
+});
+
+function loadDataset(rows) {
+  if (!rows || rows.length === 0) {
+    alert('No data found in uploaded file.');
+    return;
+  }
+
+  const sample = rows[0];
+
+  const dateKey = findKey(sample, ['Date']);
+  const team1Key = findKey(sample, ['Team1', 'Team_1', 'Team 1']);
+  const team2Key = findKey(sample, ['Team2', 'Team_2', 'Team 2']);
+  const winnerKey = findKey(sample, ['Winner']);
+  const marginKey = findKey(sample, ['Margin']);
+  const pomKey = findKey(sample, ['Player_of_the_Match', 'Player of the Match', 'Man_of_the_Match']);
+  const runs1Key = findKey(sample, ['Runs_Team1', 'Runs Team1', 'Runs_Team_1']);
+  const runs2Key = findKey(sample, ['Runs_Team2', 'Runs Team2', 'Runs_Team_2']);
+
+  if (!dateKey || !team1Key || !team2Key || !winnerKey) {
+    alert('Required columns missing. Need at least Date, Team1, Team2, Winner.');
+    return;
+  }
+
+  rawRows = rows.map(r => ({
+    DateRaw: r[dateKey],
+    Date: parseDateFlexible(r[dateKey]),
+    Team1: r[team1Key] || 'Unknown',
+    Team2: r[team2Key] || 'Unknown',
+    Winner: r[winnerKey] || 'Unknown',
+    Margin: r[marginKey] || '',
+    Player_of_the_Match: r[pomKey] || 'Unknown',
+    Runs_Team1: Number(r[runs1Key]) || 0,
+    Runs_Team2: Number(r[runs2Key]) || 0,
+  })).filter(r => r.Date !== null);
+
+  if(rawRows.length === 0){
+    alert('No valid date rows found after parsing.');
+    return;
+  }
+
+  // Populate team select
+  const teamsSet = new Set();
+  rawRows.forEach(r => {
+    teamsSet.add(r.Team1);
+    teamsSet.add(r.Team2);
+    teamsSet.add(r.Winner);
+  });
+  const teams = Array.from(teamsSet).sort();
+  teamSelect.innerHTML = '<option value="__all">All Teams</option>' + teams.map(t => `<option value="${t}">${t}</option>`).join('');
+
+  // Set date inputs
+  const dates = rawRows.map(r => r.Date).sort((a,b) => a-b);
+  document.getElementById('startDate').value = formatDateISO(dates[0]);
+  document.getElementById('endDate').value = formatDateISO(dates[dates.length -1]);
+
+  summaryText.textContent = `Matches: ${rawRows.length} — Teams: ${teams.length} — Date range: ${formatDateISO(dates[0])} → ${formatDateISO(dates[dates.length -1])}`;
+
+  drawAllCharts();
+}
+
+function filterRows(team, start, end) {
+  return rawRows.filter(r => {
+    if(team && team !== '__all' && r.Team1 !== team && r.Team2 !== team && r.Winner !== team) return false;
+    if(start && r.Date < start) return false;
+    if(end && r.Date > end) return false;
+    return true;
+  });
+}
+
+function drawAllCharts() {
+  const team = teamSelect.value;
+  const startDateStr = document.getElementById('startDate').value;
+  const endDateStr = document.getElementById('endDate').value;
+  const start = startDateStr ? new Date(startDateStr) : null;
+  const end = endDateStr ? new Date(endDateStr) : null;
+
+  const filtered = filterRows(team, start, end);
+
+  clearCharts();
+
+  // Chart 1: Wins by team (bar)
+  const winsCount = {};
+  filtered.forEach(r => {
+    winsCount[r.Winner] = (winsCount[r.Winner] || 0) + 1;
+  });
+  const winsTeams = Object.keys(winsCount).sort((a,b) => winsCount[b] - winsCount[a]);
+  const winsValues = winsTeams.map(t => winsCount[t]);
+
+  const winsCtx = document.getElementById('winsBar').getContext('2d');
+  charts.push(new Chart(winsCtx, {
+    type: 'bar',
+    data: {
+      labels: winsTeams,
+      datasets: [{
+        label: 'Wins',
+        data: winsValues,
+        backgroundColor: 'rgba(243, 156, 18, 0.8)',
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive:true,
+      plugins: {legend: {display:false}, title:{display:true,text:'Wins by Team'}},
+      scales: {
+        y: {beginAtZero:true, ticks: {stepSize:1}}
+      }
+    }
+  }));
+
+  // Chart 2: Runs over matches (line chart)
+  const sortedMatches = filtered.slice().sort((a,b) => a.Date - b.Date);
+  const labels = sortedMatches.map((r,i) => `Match ${i+1} (${formatDateISO(r.Date)})`);
+  const runsTeam1 = sortedMatches.map(r => r.Runs_Team1);
+  const runsTeam2 = sortedMatches.map(r => r.Runs_Team2);
+  const teams1 = sortedMatches.map(r => r.Team1);
+  const teams2 = sortedMatches.map(r => r.Team2);
+
+  const runsCtx = document.getElementById('runsLine').getContext('2d');
+  charts.push(new Chart(runsCtx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Runs Team1',
+          data: runsTeam1,
+          borderColor: 'rgba(46, 204, 113,0.9)',
+          backgroundColor: 'rgba(46, 204, 113,0.3)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 2,
+        },
+        {
+          label: 'Runs Team2',
+          data: runsTeam2,
+          borderColor: 'rgba(52, 152, 219,0.9)',
+          backgroundColor: 'rgba(52, 152, 219,0.3)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 2,
+        }
+      ]
+    },
+    options: {
+      responsive:true,
+      plugins: {
+        title: {display:true, text:'Runs scored per match'},
+        tooltip: {
+          callbacks: {
+            title: ctx => {
+              const idx = ctx[0].dataIndex;
+              return `Match ${idx+1}: ${teams1[idx]} vs ${teams2[idx]}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {beginAtZero:true},
+        x: {display:false} // hide crowded x labels
+      }
+    }
+  }));
+
+  // Chart 3: Player of the Match counts (bar)
+  const pomCount = {};
+  filtered.forEach(r => {
+    pomCount[r.Player_of_the_Match] = (pomCount[r.Player_of_the_Match] || 0) + 1;
+  });
+  const pomPlayers = Object.keys(pomCount).sort((a,b) => pomCount[b] - pomCount[a]).slice(0,10);
+  const pomValues = pomPlayers.map(p => pomCount[p]);
+
+  const pomCtx = document.getElementById('playerOfMatchBar').getContext('2d');
+  charts.push(new Chart(pomCtx, {
+    type: 'bar',
+    data: {
+      labels: pomPlayers,
+      datasets: [{
+        label: 'Player of the Match',
+        data: pomValues,
+        backgroundColor: 'rgba(231, 76, 60, 0.8)',
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive:true,
+      plugins: {legend: {display:false}, title:{display:true,text:'Top 10 Player of the Match'}},
+      scales: {
+        y: {beginAtZero:true, ticks: {stepSize:1}}
+      }
+    }
+  }));
+}
+
+document.getElementById('applyBtn').addEventListener('click', () => {
+  if(rawRows.length === 0){
+    alert('Load data first!');
+    return;
+  }
+  drawAllCharts();
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if(rawRows.length === 0){
+    alert('Load data first!');
+    return;
+  }
+  teamSelect.value = '__all';
+  const dates = rawRows.map(r => r.Date).sort((a,b) => a-b);
+  document.getElementById('startDate').value = formatDateISO(dates[0]);
+  document.getElementById('endDate').value = formatDateISO(dates[dates.length -1]);
+  drawAllCharts();
+});
+
+</script>
+
+</body>
+</html>

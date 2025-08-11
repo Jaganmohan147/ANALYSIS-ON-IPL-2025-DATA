@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANALYSIS ON IPL 2025 DATA</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: url('https://newsarenaindia.com/_next/image?url=https%3A%2F%2Fimages.newsarenaindia.com%2F%2Funtitled-design-20250112t182518309jpg_1736686536284.jpg&w=1920&q=75') no-repeat center center/cover;
+        color: white;
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+    }
+    header {
+        background: rgba(0,0,0,0.8);
+        padding: 10px;
+        text-align: center;
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+    .container {
+        flex: 1;
+        display: flex;
+    }
+    nav {
+        width: 250px;
+        background: rgba(0,0,0,0.85);
+        padding-top: 20px;
+        transition: transform 0.3s ease;
+    }
+    nav a {
+        display: block;
+        padding: 12px;
+        color: white;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    nav a:hover {
+        background: rgba(255,255,255,0.2);
+    }
+    main {
+        flex: 1;
+        padding: 20px;
+        background: rgba(0,0,0,0.6);
+        overflow-y: auto;
+    }
+    section {
+        display: none;
+        animation: fadeIn 0.5s ease;
+    }
+    section.active {
+        display: block;
+    }
+    .card {
+        background: rgba(255,255,255,0.15);
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+    }
+    footer {
+        background: rgba(0,0,0,0.85);
+        text-align: center;
+        padding: 10px;
+        font-size: 0.9em;
+        position: sticky;
+        bottom: 0;
+        color: #ccc;
+    }
+    /* Mobile View */
+    .burger {
+        display: none;
+        position: absolute;
+        left: 10px;
+        top: 15px;
+        cursor: pointer;
+        font-size: 24px;
+    }
+    @media(max-width: 768px) {
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            transform: translateX(-100%);
+            z-index: 100;
+        }
+        nav.active {
+            transform: translateX(0);
+        }
+        .burger {
+            display: block;
+        }
+        .container {
+            flex-direction: column;
+        }
+    }
+    @keyframes fadeIn {
+        from {opacity: 0;}
+        to {opacity: 1;}
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <span class="burger" onclick="toggleMenu()">☰</span>
+    ANALYSIS ON IPL 2025  DATA</header>
+
+<div class="container">
+    <nav id="sidebar">
+        <a href="#" onclick="showSection('abstract')">Abstract</a>
+        <a href="#" onclick="showSection('introduction')">Introduction</a>
+        <a href="#" onclick="showSection('proposed')">Proposed System</a>
+        <a href="#" onclick="showSection('existing')">Existing System</a>
+        <a href="#" onclick="showSection('technology')">Technology</a>
+        <a href="#" onclick="showSection('analysis')">Analysis</a>
+        <a href="#" onclick="showSection('team')">Team Members</a>
+    </nav>
+
+    <main>
+        <section id="abstract" class="active">
+            <div class="card">
+                <h2>Abstract</h2>
+                <p>The Indian Premier League (IPL) is one of the most popular T20 cricket leagues worldwide, featuring high-intensity matches and exceptional player performances. Analyzing IPL data provides valuable insights into team performances, player statistics, and match outcomes, which can benefit fans, analysts, and teams alike. This project focuses on creating an interactive data visualization system for IPL 2025 match data using Excel and web-based technologies. 
+The system allows users to upload IPL match data, filter by teams and date ranges, and generate visual charts representing match results, player of the match awards, and run statistics. This approach democratizes access to IPL data analytics without requiring specialized software or programming knowledge. 
+Through this project, stakeholders can easily explore IPL 2025 data trends and make data-driven decisions or simply enjoy the statistical aspects of the league.
+</p>
+            </div>
+        </section>
+
+        <section id="introduction">
+            <div class="card">
+                <h2>Introduction</h2>
+                <p>The Indian Premier League (IPL) has revolutionized cricket with its fast-paced format and immense popularity since its inception in 2008. Each season generates massive amounts of data related to matches, players, venues, and outcomes. Proper analysis of this data can enhance the understanding of game dynamics and improve strategic planning for teams.
+Data analytics in sports, particularly cricket, has become an essential tool for coaches, commentators, and fans to evaluate player performances and match situations. With the increasing availability of detailed match data, it is crucial to develop systems that can effectively visualize and analyze this data for better decision making. 
+This project aims to build a web-based IPL data analysis tool that allows users to explore match data for the 2025 season through intuitive visualizations and user-friendly filters.
+</p>
+            </div>
+        </section>
+
+        <section id="proposed">
+            <div class="card">
+                <h2>Proposed System</h2>
+                <p>The proposed system is a web application that enables users to upload IPL 2025 match data in Excel format. It provides an interactive dashboard built with HTML, JavaScript, and Chart.js to visualize various match statistics such as runs scored, match winners, and player of the match awards.
+Users can filter data by selecting specific teams, date ranges, and apply smoothing functions to better understand trends over time. The system generates line charts, bar charts, and stacked area charts to represent the data visually and dynamically update the views based on user selections.
+This approach offers a user-friendly interface requiring no programming knowledge, enabling cricket enthusiasts, analysts, and casual users to explore IPL data efficiently.
+
+
+</p>
+            </div>
+        </section>
+
+        <section id="existing">
+            <div class="card">
+                <h2>Existing System</h2>
+                <p>Currently, IPL data analysis is commonly done using advanced software like Tableau, Power BI, and specialized sports analytics platforms. These systems often require technical expertise to operate and may not be accessible to the general public. Additionally, many fans rely on static statistics and highlight reels which do not provide comprehensive interactive insights.
+Some websites and apps provide basic IPL stats but lack dynamic filtering options and customized visualizations. Moreover, the data presentation is often fragmented and does not allow users to drill down into specific teams or match periods efficiently. 
+Therefore, there is a gap for a simple, web-based, and interactive IPL data analysis system that can be easily accessed by users with minimal technical knowledge.
+
+</p>
+            </div>
+        </section>
+
+        <section id="technology">
+            <div class="card">
+                <h2>Technology</h2>
+                <p>The project uses web technologies including HTML5 for structuring the interface and CSS3 for styling the web page with a modern, responsive design. JavaScript is employed to handle data processing, filtering, and chart rendering dynamically on the client side.
+Chart.js, a powerful JavaScript charting library, is utilized to create interactive and visually appealing charts such as line graphs and bar charts. SheetJS (xlsx library) is used to parse Excel files uploaded by users, converting the data into a workable JSON format for visualization.
+This technology stack ensures cross-platform compatibility and ease of access since the application runs fully in web browsers without requiring backend infrastructure.
+</p>
+            </div>
+        </section>
+        <section id="analysis">
+            <div class="card">
+                <h2>Analysis</h2>
+                <iframe src="graph.html" width="100%" height="800" style="border:none;border-radius:10px;"></iframe>
+            </div>
+        </section>
+
+        <section id="team">
+            <div class="card">
+                <h2>Team Members</h2>
+                <ul>
+                    <li>Arja Kamala Naga Revanth - Y237258005--(TEAM LEADER)</li>
+  <li>Chan Begum - Y237258011</li>
+  <li>Chillimuntha Gnana Sree - Y237258012</li>
+  <li>Chooagiri Lavanya - Y237258013</li>
+  <li>DOKKU Lakshmi Sahithi - Y237258014</li>
+  <li>Done Konda Babu - Y237258015</li>
+  <li>Ershad Fathima - Y237258016</li>
+  <li>GADI SYAM KUMAR - Y237258017</li>
+  <li>Golla Venkata Naga Vijayeswara Rao - Y237258018</li>
+  <li>Gorle Sindhu Priya - Y237258019</li>     </ul>
+            </div>
+        </section>
+    </main>
+</div>
+
+<footer>
+    This project is designed by B.Com students from SSR Degree College under the esteemed guidance of K. Jagan Sir.
+</footer>
+
+<script>
+function showSection(id) {
+    document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if (window.innerWidth <= 768) toggleMenu();
+}
+function toggleMenu() {
+    document.getElementById('sidebar').classList.toggle('active');
+}
+</script>
+
+</body>
+</html>
