@@ -4,110 +4,163 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ANALYSIS ON IPL 2025 DATA</title>
+
+<!-- Chart.js and XLSX -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 <style>
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: url('https://newsarenaindia.com/_next/image?url=https%3A%2F%2Fimages.newsarenaindia.com%2F%2Funtitled-design-20250112t182518309jpg_1736686536284.jpg&w=1920&q=75') no-repeat center center/cover;
-        color: white;
-        display: flex;
-        min-height: 100vh;
-        flex-direction: column;
+/* ====== MAIN PAGE STYLES ====== */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: url('https://newsarenaindia.com/_next/image?url=https%3A%2F%2Fimages.newsarenaindia.com%2F%2Funtitled-design-20250112t182518309jpg_1736686536284.jpg&w=1920&q=75') no-repeat center center/cover;
+    color: white;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+header {
+    background: rgba(0,0,0,0.8);
+    padding: 10px;
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+.container {
+    flex: 1;
+    display: flex;
+}
+nav {
+    width: 250px;
+    background: rgba(0,0,0,0.85);
+    padding-top: 20px;
+    transition: transform 0.3s ease;
+}
+nav a {
+    display: block;
+    padding: 12px;
+    color: white;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+nav a:hover {
+    background: rgba(255,255,255,0.2);
+}
+main {
+    flex: 1;
+    padding: 20px;
+    background: rgba(0,0,0,0.6);
+    overflow-y: auto;
+}
+section {
+    display: none;
+    animation: fadeIn 0.5s ease;
+}
+section.active {
+    display: block;
+}
+.card {
+    background: rgba(255,255,255,0.15);
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+footer {
+    background: rgba(0,0,0,0.85);
+    text-align: center;
+    padding: 10px;
+    font-size: 0.9em;
+    position: sticky;
+    bottom: 0;
+    color: #ccc;
+}
+.burger {
+    display: none;
+    position: absolute;
+    left: 10px;
+    top: 15px;
+    cursor: pointer;
+    font-size: 24px;
+}
+@media(max-width: 768px) {
+    nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        transform: translateX(-100%);
+        z-index: 100;
     }
-    header {
-        background: rgba(0,0,0,0.8);
-        padding: 10px;
-        text-align: center;
-        font-size: 1.5em;
-        font-weight: bold;
+    nav.active {
+        transform: translateX(0);
+    }
+    .burger {
+        display: block;
     }
     .container {
-        flex: 1;
-        display: flex;
+        flex-direction: column;
     }
-    nav {
-        width: 250px;
-        background: rgba(0,0,0,0.85);
-        padding-top: 20px;
-        transition: transform 0.3s ease;
-    }
-    nav a {
-        display: block;
-        padding: 12px;
-        color: white;
-        text-decoration: none;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    nav a:hover {
-        background: rgba(255,255,255,0.2);
-    }
-    main {
-        flex: 1;
-        padding: 20px;
-        background: rgba(0,0,0,0.6);
-        overflow-y: auto;
-    }
-    section {
-        display: none;
-        animation: fadeIn 0.5s ease;
-    }
-    section.active {
-        display: block;
-    }
-    .card {
-        background: rgba(255,255,255,0.15);
-        padding: 20px;
-        margin-bottom: 20px;
-        border-radius: 10px;
-    }
-    footer {
-        background: rgba(0,0,0,0.85);
-        text-align: center;
-        padding: 10px;
-        font-size: 0.9em;
-        position: sticky;
-        bottom: 0;
-        color: #ccc;
-    }
-    /* Mobile View */
-    .burger {
-        display: none;
-        position: absolute;
-        left: 10px;
-        top: 15px;
-        cursor: pointer;
-        font-size: 24px;
-    }
-    @media(max-width: 768px) {
-        nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100%;
-            transform: translateX(-100%);
-            z-index: 100;
-        }
-        nav.active {
-            transform: translateX(0);
-        }
-        .burger {
-            display: block;
-        }
-        .container {
-            flex-direction: column;
-        }
-    }
-    @keyframes fadeIn {
-        from {opacity: 0;}
-        to {opacity: 1;}
-    }
+}
+@keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+/* ====== GRAPH DASHBOARD STYLES ====== */
+:root{
+  --glass: rgba(255,255,255,0.08);
+  --accent: #f39c12;
+  --muted: #dfeef0;
+  --card-radius: 12px;
+}
+.graph-header{
+  background: linear-gradient(90deg, rgba(0,0,0,0.7), rgba(0,0,0,0.9));
+  padding:14px 18px;
+  display:flex; align-items:center; gap:12px;
+}
+.brand{
+  display:flex; align-items:center; gap:12px;
+}
+.logo {
+  width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#d35400);
+  display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;
+}
+.top-actions { margin-left:auto; display:flex; gap:10px; align-items:center; }
+.btn { background:var(--accent); color:#3a1a00; padding:8px 12px; border-radius:8px; border:none; cursor:pointer; font-weight:600; }
+.btn.ghost { background: transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.06); }
+.graph-main { padding:18px; display:grid; grid-template-columns: 300px 1fr; gap:18px; }
+.sidebar {
+  background: var(--glass);
+  padding:14px;
+  border-radius: var(--card-radius);
+}
+.sidebar h3{margin:0 0 8px 0;font-size:14px;color:var(--muted)}
+select, input[type="date"] {
+  width:100%; padding:8px; border-radius:8px;
+  background: rgba(10,10,10,0.3); color:var(--muted); font-size:13px;
+}
+.content {
+  display:flex; flex-direction:column; gap:18px;
+}
+.graph-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border-radius: var(--card-radius);
+  padding:14px;
+}
+.charts-grid {
+  display:grid; grid-template-columns: repeat(2, 1fr); gap:14px;
+}
+.full { grid-column: 1 / -1; }
+canvas { background: transparent; border-radius:8px; }
 </style>
 </head>
 <body>
 
 <header>
     <span class="burger" onclick="toggleMenu()">☰</span>
-    ANALYSIS ON IPL 2025  DATA</header>
+    ANALYSIS ON IPL 2025 DATA
+</header>
 
 <div class="container">
     <nav id="sidebar">
@@ -122,80 +175,59 @@
 
     <main>
         <section id="abstract" class="active">
-            <div class="card">
-                <h2>Abstract</h2>
-                <p>The Indian Premier League (IPL) is one of the most popular T20 cricket leagues worldwide, featuring high-intensity matches and exceptional player performances. Analyzing IPL data provides valuable insights into team performances, player statistics, and match outcomes, which can benefit fans, analysts, and teams alike. This project focuses on creating an interactive data visualization system for IPL 2025 match data using Excel and web-based technologies. 
-The system allows users to upload IPL match data, filter by teams and date ranges, and generate visual charts representing match results, player of the match awards, and run statistics. This approach democratizes access to IPL data analytics without requiring specialized software or programming knowledge. 
-Through this project, stakeholders can easily explore IPL 2025 data trends and make data-driven decisions or simply enjoy the statistical aspects of the league.
-</p>
-            </div>
+            <div class="card"><h2>Abstract</h2><p>...</p></div>
         </section>
 
-        <section id="introduction">
-            <div class="card">
-                <h2>Introduction</h2>
-                <p>The Indian Premier League (IPL) has revolutionized cricket with its fast-paced format and immense popularity since its inception in 2008. Each season generates massive amounts of data related to matches, players, venues, and outcomes. Proper analysis of this data can enhance the understanding of game dynamics and improve strategic planning for teams.
-Data analytics in sports, particularly cricket, has become an essential tool for coaches, commentators, and fans to evaluate player performances and match situations. With the increasing availability of detailed match data, it is crucial to develop systems that can effectively visualize and analyze this data for better decision making. 
-This project aims to build a web-based IPL data analysis tool that allows users to explore match data for the 2025 season through intuitive visualizations and user-friendly filters.
-</p>
-            </div>
-        </section>
+        <section id="introduction"><div class="card"><h2>Introduction</h2><p>...</p></div></section>
+        <section id="proposed"><div class="card"><h2>Proposed System</h2><p>...</p></div></section>
+        <section id="existing"><div class="card"><h2>Existing System</h2><p>...</p></div></section>
+        <section id="technology"><div class="card"><h2>Technology</h2><p>...</p></div></section>
 
-        <section id="proposed">
-            <div class="card">
-                <h2>Proposed System</h2>
-                <p>The proposed system is a web application that enables users to upload IPL 2025 match data in Excel format. It provides an interactive dashboard built with HTML, JavaScript, and Chart.js to visualize various match statistics such as runs scored, match winners, and player of the match awards.
-Users can filter data by selecting specific teams, date ranges, and apply smoothing functions to better understand trends over time. The system generates line charts, bar charts, and stacked area charts to represent the data visually and dynamically update the views based on user selections.
-This approach offers a user-friendly interface requiring no programming knowledge, enabling cricket enthusiasts, analysts, and casual users to explore IPL data efficiently.
-
-
-</p>
-            </div>
-        </section>
-
-        <section id="existing">
-            <div class="card">
-                <h2>Existing System</h2>
-                <p>Currently, IPL data analysis is commonly done using advanced software like Tableau, Power BI, and specialized sports analytics platforms. These systems often require technical expertise to operate and may not be accessible to the general public. Additionally, many fans rely on static statistics and highlight reels which do not provide comprehensive interactive insights.
-Some websites and apps provide basic IPL stats but lack dynamic filtering options and customized visualizations. Moreover, the data presentation is often fragmented and does not allow users to drill down into specific teams or match periods efficiently. 
-Therefore, there is a gap for a simple, web-based, and interactive IPL data analysis system that can be easily accessed by users with minimal technical knowledge.
-
-</p>
-            </div>
-        </section>
-
-        <section id="technology">
-            <div class="card">
-                <h2>Technology</h2>
-                <p>The project uses web technologies including HTML5 for structuring the interface and CSS3 for styling the web page with a modern, responsive design. JavaScript is employed to handle data processing, filtering, and chart rendering dynamically on the client side.
-Chart.js, a powerful JavaScript charting library, is utilized to create interactive and visually appealing charts such as line graphs and bar charts. SheetJS (xlsx library) is used to parse Excel files uploaded by users, converting the data into a workable JSON format for visualization.
-This technology stack ensures cross-platform compatibility and ease of access since the application runs fully in web browsers without requiring backend infrastructure.
-</p>
-            </div>
-        </section>
+        <!-- ====== ANALYSIS SECTION WITH GRAPHS ====== -->
         <section id="analysis">
-            <div class="card">
-                <h2>Analysis</h2>
-                <iframe src="graph.html" width="100%" height="800" style="border:none;border-radius:10px;"></iframe>
+            <div class="graph-header">
+                <div class="brand">
+                    <div class="logo">IPL</div>
+                    <div>
+                        <h1>IPL 2025 — Automatic Graphs</h1>
+                        <div style="font-size:12px;color:#ccc;">Upload Excel → Visualize stats</div>
+                    </div>
+                </div>
+                <div class="top-actions">
+                    <button class="btn" id="demoBtn">Load Demo Data</button>
+                    <label class="btn ghost" for="fileInput">Choose Excel file</label>
+                    <input id="fileInput" type="file" accept=".xlsx,.xls" style="display:none" />
+                </div>
+            </div>
+
+            <div class="graph-main">
+                <aside class="sidebar">
+                    <h3>Filters</h3>
+                    <label>Select Team</label>
+                    <select id="teamSelect"></select>
+                    <label>Date range</label>
+                    <input type="date" id="startDate" />
+                    <input type="date" id="endDate" style="margin-top:5px;" />
+                    <div style="display:flex;gap:8px;margin-top:10px">
+                        <button class="btn" id="applyBtn">Apply</button>
+                        <button class="btn ghost" id="resetBtn">Reset</button>
+                    </div>
+                </aside>
+
+                <section class="content">
+                    <div class="graph-card">
+                        <strong>Dataset summary:</strong> <span id="summaryText">No dataset loaded</span>
+                    </div>
+                    <div class="graph-card charts-grid">
+                        <div><canvas id="winsBar"></canvas></div>
+                        <div><canvas id="runsLine"></canvas></div>
+                        <div class="full"><canvas id="playerOfMatchBar"></canvas></div>
+                    </div>
+                </section>
             </div>
         </section>
 
-        <section id="team">
-            <div class="card">
-                <h2>Team Members</h2>
-                <ul>
-                    <li>Arja Kamala Naga Revanth - Y237258005--(TEAM LEADER)</li>
-  <li>Chan Begum - Y237258011</li>
-  <li>Chillimuntha Gnana Sree - Y237258012</li>
-  <li>Chooagiri Lavanya - Y237258013</li>
-  <li>DOKKU Lakshmi Sahithi - Y237258014</li>
-  <li>Done Konda Babu - Y237258015</li>
-  <li>Ershad Fathima - Y237258016</li>
-  <li>GADI SYAM KUMAR - Y237258017</li>
-  <li>Golla Venkata Naga Vijayeswara Rao - Y237258018</li>
-  <li>Gorle Sindhu Priya - Y237258019</li>     </ul>
-            </div>
-        </section>
+        <section id="team"><div class="card"><h2>Team Members</h2><ul><li>...</li></ul></div></section>
     </main>
 </div>
 
@@ -203,6 +235,7 @@ This technology stack ensures cross-platform compatibility and ease of access si
     This project is designed by B.Com students from SSR Degree College under the esteemed guidance of K. Jagan Sir.
 </footer>
 
+<!-- ====== SIDEBAR NAVIGATION SCRIPT ====== -->
 <script>
 function showSection(id) {
     document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
@@ -214,5 +247,79 @@ function toggleMenu() {
 }
 </script>
 
+<!-- ====== GRAPH DASHBOARD SCRIPT (from graph.html) ====== -->
+<script>
+let rawRows = [], charts = [];
+const teamSelect = document.getElementById('teamSelect');
+const summaryText = document.getElementById('summaryText');
+function clearCharts() { charts.forEach(c => c.destroy()); charts = []; }
+function formatDateISO(d) { if(!d) return ''; const Y = d.getFullYear(); const M = String(d.getMonth()+1).padStart(2,'0'); const D = String(d.getDate()).padStart(2,'0'); return `${Y}-${M}-${D}`; }
+function parseDateFlexible(v) { if (v instanceof Date) return v; let d = new Date(v); if (!isNaN(d)) return d; return null; }
+function findKey(row, candidates) { const keys = Object.keys(row); for (const c of candidates) { for (const k of keys) { if (k.toLowerCase().trim() === c.toLowerCase().trim()) return k; } } return null; }
+
+document.getElementById('fileInput').addEventListener('change', async evt => {
+  const f = evt.target.files[0]; if (!f) return;
+  const buf = await f.arrayBuffer();
+  const wb = XLSX.read(buf, {type:'array', cellDates:true});
+  const sheet = wb.Sheets[wb.SheetNames[0]];
+  const data = XLSX.utils.sheet_to_json(sheet, {defval:null});
+  loadDataset(data);
+});
+
+document.getElementById('demoBtn').addEventListener('click', () => {
+  const teams = ['CSK','MI','RCB','KKR','SRH','RR','PBKS','LSG','GT','DC'];
+  const demo = [];
+  const startDate = new Date('2025-03-23');
+  for(let i=0;i<20;i++){
+    const d = new Date(startDate); d.setDate(startDate.getDate()+i);
+    const team1 = teams[i % teams.length];
+    const team2 = teams[(i+3) % teams.length];
+    const winner = Math.random()>0.5 ? team1 : team2;
+    const runs1 = 120 + Math.floor(Math.random()*100);
+    const runs2 = 110 + Math.floor(Math.random()*110);
+    demo.push({Date: formatDateISO(d), Team1: team1, Team2: team2, Winner: winner, Runs_Team1: runs1, Runs_Team2: runs2, Player_of_the_Match: team1+" Star"});
+  }
+  loadDataset(demo);
+});
+
+function loadDataset(rows) {
+  const sample = rows[0];
+  const dateKey = findKey(sample, ['Date']);
+  const t1Key = findKey(sample, ['Team1']); const t2Key = findKey(sample, ['Team2']);
+  const winKey = findKey(sample, ['Winner']);
+  const runs1Key = findKey(sample, ['Runs_Team1']); const runs2Key = findKey(sample, ['Runs_Team2']);
+  const pomKey = findKey(sample, ['Player_of_the_Match']);
+  rawRows = rows.map(r => ({
+    Date: parseDateFlexible(r[dateKey]),
+    Team1: r[t1Key], Team2: r[t2Key], Winner: r[winKey],
+    Runs_Team1: Number(r[runs1Key])||0, Runs_Team2: Number(r[runs2Key])||0,
+    Player_of_the_Match: r[pomKey]
+  })).filter(r => r.Date);
+  const teams = [...new Set(rawRows.flatMap(r => [r.Team1, r.Team2]))].sort();
+  teamSelect.innerHTML = '<option value="__all">All Teams</option>' + teams.map(t=>`<option>${t}</option>`).join('');
+  summaryText.textContent = `Matches: ${rawRows.length} — Teams: ${teams.length}`;
+  drawAllCharts();
+}
+
+function filterRows(team) { return rawRows.filter(r => team==='__all'||r.Team1===team||r.Team2===team||r.Winner===team); }
+
+function drawAllCharts(){
+  const filtered = filterRows(teamSelect.value);
+  clearCharts();
+  const winsCount = {}; filtered.forEach(r => winsCount[r.Winner]=(winsCount[r.Winner]||0)+1);
+  const winsTeams = Object.keys(winsCount); const winsVals = Object.values(winsCount);
+  charts.push(new Chart(document.getElementById('winsBar'), {type:'bar', data:{labels:winsTeams, datasets:[{label:'Wins', data:winsVals, backgroundColor:'orange'}]}}));
+
+  const labels = filtered.map((r,i)=>`Match ${i+1}`); const r1=filtered.map(r=>r.Runs_Team1); const r2=filtered.map(r=>r.Runs_Team2);
+  charts.push(new Chart(document.getElementById('runsLine'), {type:'line', data:{labels, datasets:[{label:'Runs T1',data:r1,borderColor:'limegreen',fill:false},{label:'Runs T2',data:r2,borderColor:'skyblue',fill:false}]}}));
+
+  const pomCount={}; filtered.forEach(r=>pomCount[r.Player_of_the_Match]=(pomCount[r.Player_of_the_Match]||0)+1);
+  const pomPlayers = Object.keys(pomCount); const pomVals = Object.values(pomCount);
+  charts.push(new Chart(document.getElementById('playerOfMatchBar'), {type:'bar', data:{labels:pomPlayers, datasets:[{label:'POM', data:pomVals, backgroundColor:'red'}]}}));
+}
+
+document.getElementById('applyBtn').addEventListener('click', drawAllCharts);
+document.getElementById('resetBtn').addEventListener('click', ()=>{teamSelect.value='__all'; drawAllCharts();});
+</script>
 </body>
 </html>
